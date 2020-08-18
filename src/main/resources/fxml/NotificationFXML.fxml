@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.text.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="62.0" prefWidth="305.0" style="-fx-background-color: #3D4956;" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.filetransferwithui.NotificationFXMLController">
+	<children>
+		<Label layoutX="6.0" layoutY="30.0" opacity="0.85" text="Waited Items" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+		</Label>
+      <Label fx:id="totalFileWaited" layoutX="6.0" layoutY="47.0" opacity="0.85" text="0" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Label>
+      <Label layoutX="115.0" layoutY="30.0" opacity="0.85" text="Status" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label fx:id="status" layoutX="115.0" layoutY="47.0" opacity="0.85" text="Ready!" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Label>
+      <Label layoutX="188.0" layoutY="31.0" opacity="0.85" text="Total Items" textFill="WHITE">
+         <font>
+            <Font name="System Bold" size="12.0" />
+         </font>
+      </Label>
+      <Label fx:id="totalFile" layoutX="188.0" layoutY="47.0" opacity="0.85" text="0" textFill="WHITE">
+         <font>
+            <Font size="10.0" />
+         </font>
+      </Label>
+      <ImageView fx:id="btn_folder" fitHeight="41.0" fitWidth="36.0" layoutX="273.0" layoutY="21.0" onMouseClicked="#handleButtonAction" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/open.png" />
+         </image>
+      </ImageView>
+	</children>
+</AnchorPane>

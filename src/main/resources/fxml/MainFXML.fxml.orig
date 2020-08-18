@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.validation.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.*?>
+<?import com.jfoenix.controls.*?>
+<?import java.lang.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import com.jfoenix.controls.JFXSlider?>
+<?import com.jfoenix.controls.JFXToggleButton?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane id="AnchorPane" prefHeight="466.0" prefWidth="425.0" style="-fx-background-color: rgba(0, 100, 100, 0);" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.filetransferwithui.MainFXMLController">
+   <children>
+      <AnchorPane fx:id="topbar" prefHeight="73.0" prefWidth="426.0" style="-fx-background-color: #3D4956;">
+         <children>
+            <ImageView fx:id="btn_upload" fitHeight="32.0" fitWidth="32.0" layoutX="32.0" layoutY="24.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" onMousePressed="#handleButtonAction" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/upload.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="btn_app_s" fitHeight="43.0" fitWidth="32.0" layoutX="173.0" layoutY="24.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" onMousePressed="#handleButtonAction" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/app-t.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="btn_user" fitHeight="57.0" fitWidth="32.0" layoutX="243.0" layoutY="24.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" onMousePressed="#handleButtonAction" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/user.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="btn_min" fitHeight="40.0" fitWidth="32.0" layoutX="305.0" layoutY="24.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" onMousePressed="#handleButtonAction" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/min.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="btn_exit" fitHeight="32.0" fitWidth="32.0" layoutX="364.0" layoutY="24.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" onMousePressed="#handleButtonAction" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/exit.png" />
+               </image>
+            </ImageView>
+            <Group />
+            <ImageView fx:id="btn_download" fitHeight="43.0" fitWidth="32.0" layoutX="102.0" layoutY="24.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" onMousePressed="#handleButtonAction" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/download.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="h_settings" layoutY="88.0" prefHeight="374.0" prefWidth="426.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <Label layoutX="38.0" layoutY="32.0" text="Select Save Folder :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="folderLabel" layoutX="38.0" layoutY="61.0" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
+            <Label layoutX="38.0" layoutY="104.0" text="Port Number :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="portLabel" layoutX="38.0" layoutY="126.0" text="Auto subsribe to the channel" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
+            <Separator layoutX="35.0" layoutY="168.0" opacity="0.33" prefHeight="1.0" prefWidth="360.0" />
+            <JFXButton fx:id="btnSave" layoutX="223.0" layoutY="318.0" onMouseClicked="#handleInsideButtons" prefHeight="25.0" prefWidth="125.0" style="-fx-background-color: #e67e22; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Save" />
+            <JFXButton fx:id="btnCancel" layoutX="52.0" layoutY="318.0" onMouseClicked="#handleInsideButtons" prefHeight="25.0" prefWidth="125.0" style="-fx-background-color: #515D6D; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Cancel" textFill="WHITE" />
+            <JFXButton fx:id="selectFolderBtn" layoutX="265.0" layoutY="28.0" onMouseClicked="#handleInsideButtons" prefHeight="25.0" prefWidth="125.0" style="-fx-background-color: #e67e22; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Select Folder" />
+            <TextField fx:id="portText" layoutX="265.0" layoutY="102.0" prefHeight="27.0" prefWidth="123.0" promptText="Port Number">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </TextField>
+            <Label fx:id="discoveryPortLabel" layoutX="38.0" layoutY="277.0" text="Auto subsribe to the channel" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
+            <Label layoutX="38.0" layoutY="250.0" text="Discovery Port Number :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="portTextDiscovery" layoutX="265.0" layoutY="248.0" prefHeight="27.0" prefWidth="123.0" promptText="Port Number">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </TextField>
+            <Label layoutX="38.0" layoutY="200.0" text="Manuel Connection IP :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="ıpLabel" layoutX="265.0" layoutY="200.0" text="IP" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="h_user" layoutY="87.0" prefHeight="381.0" prefWidth="426.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <ImageView fx:id="btn_app" fitHeight="99.0" fitWidth="83.0" layoutX="168.0" layoutY="40.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/app-t.png" />
+               </image>
+            </ImageView>
+            <Label layoutX="165.0" layoutY="160.0" text="JetFile Transfer" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="55.0" layoutY="340.0" text="Copyright © Mustafa Erdem Köşk, All Rights Reserved." textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="130.0" layoutY="180.0" text="http://www.erdemkosk.com" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Separator layoutX="35.0" layoutY="320.0" opacity="0.33" prefHeight="1.0" prefWidth="360.0" />
+         </children></AnchorPane>
+      <AnchorPane fx:id="h_download" layoutY="91.0" prefHeight="381.0" prefWidth="426.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <JFXListView fx:id="listViewComing" prefHeight="400.0" prefWidth="426.0" stylesheets="@../styles/ListViewStyles.css" />
+         </children></AnchorPane>
+    <AnchorPane fx:id="h_login" layoutY="88.0" prefHeight="381.0" prefWidth="426.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <JFXComboBox fx:id="serverCombo" focusColor="#eda678" layoutX="130.0" layoutY="45.0" prefHeight="27.0" prefWidth="170.0" stylesheets="@../styles/combobox.css" unFocusColor="#f5f3f3" />
+            <Label layoutX="30.0" layoutY="20.0" text="Connect Automatically:" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <JFXButton fx:id="btnAutoLogin" layoutX="130.0" layoutY="100.0" onMouseClicked="#handleInsideButtons" prefHeight="27.0" prefWidth="170.0" style="-fx-background-color: #e67e22; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Connect" />
+            <Label layoutX="30.0" layoutY="195.0" text="Connect Manually:" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Separator layoutX="35.0" layoutY="168.0" opacity="0.33" prefHeight="1.0" prefWidth="360.0" />
+            <TextField fx:id="textIP" layoutX="130.0" layoutY="230.0" prefHeight="27.0" prefWidth="170.0" promptText="Server IP">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </TextField>
+            <TextField fx:id="textPort" layoutX="130.0" layoutY="270.0" prefHeight="27.0" prefWidth="170.0" promptText="Server Port">
+               <font>
+                  <Font name="System Bold" size="13.0" />
+               </font>
+            </TextField>
+            <JFXButton fx:id="btnManuelLogin" layoutX="130.0" layoutY="320.0" onMouseClicked="#handleInsideButtons" prefHeight="27.0" prefWidth="170.0" style="-fx-background-color: #e67e22; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Connect" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="h_upload" layoutY="91.0" prefHeight="381.0" prefWidth="426.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <JFXHamburger fx:id="hamburger" layoutX="20.0" layoutY="340.0" onMouseClicked="#handleHamburger" stylesheets="@../styles/hamburger.css" />
+            <JFXListView fx:id="listViewSending" prefHeight="317.0" prefWidth="426.0" stylesheets="@../styles/ListViewStyles.css" />
+            <JFXSnackbar fx:id="snackBar" stylesheets="@../styles/snack.css" />
+            <Label layoutX="150.0" layoutY="330.0" text="Progress:" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label layoutX="150.0" layoutY="355.0" text="Total Progressed File:" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="lblWaitedFileCount" layoutX="150.0" layoutY="325.0" text="Waited File: 0" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <JFXDrawer fx:id="drawer" direction="BOTTOM" layoutX="88.0" layoutY="328.0" prefHeight="52.0" prefWidth="338.0" />
+         </children>
+      </AnchorPane>
+      <AnchorPane fx:id="h_connectwait" layoutY="91.0" prefHeight="381.0" prefWidth="426.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <ImageView fx:id="btn_appw" fitHeight="99.0" fitWidth="83.0" layoutX="168.0" layoutY="40.0" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/app-t.png" />
+               </image>
+            </ImageView>
+            <Label layoutX="163.0" layoutY="140.0" text="Wait for Client..." textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <ProgressBar fx:id="progress" layoutX="48.0" layoutY="200.0" prefHeight="20.0" prefWidth="330.0" progress="0.0" stylesheets="@../styles/progress.css" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

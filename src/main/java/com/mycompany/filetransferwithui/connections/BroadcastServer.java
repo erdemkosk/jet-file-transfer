@@ -1,0 +1,86 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.mycompany.filetransferwithui.connections;
+
+import com.mycompany.filetransferwithui.models.AppSettings;
+import com.mycompany.filetransferwithui.models.ServerInformation;
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
+/**
+ *
+ * @author mek
+ */
+public class BroadcastServer extends UdpConnections implements Runnable {
+
+    public BroadcastServer(AppSettings setting) {
+        this.portNumber = setting.getDiscoveryServerPortNumber();
+        threadName = "DiscoveryServerThread";
+        this.setting = setting;
+    }
+
+    public int getPortNumber() {
+        return portNumber;
+    }
+
+    public void setPortNumber(int portNumber) {
+        this.portNumber = portNumber;
+    }
+
+    @Override
+    public void run() {
+        while (isRunning == true) {
+
+            try {
+                //Keep a socket open to listen to all the UDP trafic that is destined for this port
+                socket = new DatagramSocket(portNumber, InetAddress.getByName("0.0.0.0"));
+                socket.setBroadcast(true);
+
+                while (true) {
+
+                    //Receive a packet
+                    byte[] recvBuf = new byte[15000];
+                    DatagramPacket packet = new DatagramPacket(recvBuf, recvBuf.length);
+
+                    socket.receive(packet);
+
+                    //Packet received
+                    //See if the packet holds the right command (message)
+                    String message = new String(packet.getData()).trim();
+                    if (message.equals("DISCOVER_FUIFSERVER_REQUEST")) {
+                        String hostName = InetAddress.getLocalHost().getHostName();
+
+                        ServerInformation serverInfo = new ServerInformation(hostName, setting.getPortNumber());
+
+                        String gsonSettingString = gson.toJson(serverInfo, ServerInformation.class);
+
+                        String discoverServerMessage = "DISCOVER_FUIFSERVER_RESPONSE>" + gsonSettingString;
+                        byte[] sendData = discoverServerMessage.getBytes();
+
+                        //Send a response
+                        DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length, packet.getAddress(), packet.getPort());
+                        socket.send(sendPacket);
+                        isRunning = false;
+
+                    }
+                }
+            } catch (IOException ex) {
+
+            }
+        }
+    }
+
+    public void start() {
+
+        if (thread == null) {
+            thread = new Thread(this, threadName);
+            thread.start();
+        }
+    }
+
+}

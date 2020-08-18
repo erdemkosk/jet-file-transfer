@@ -1,0 +1,224 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.mycompany.filetransferwithui.controllers;
+
+import com.mycompany.filetransferwithui.connections.BroadcastClient;
+import com.mycompany.filetransferwithui.connections.FileClient;
+import com.mycompany.filetransferwithui.connections.TcpIpConnectionController;
+import com.mycompany.filetransferwithui.enums.TcpIpType;
+import com.mycompany.filetransferwithui.helpers.Helpers;
+import com.mycompany.filetransferwithui.interfaces.IApp;
+import com.mycompany.filetransferwithui.interfaces.IBroadcastObserver;
+import com.mycompany.filetransferwithui.interfaces.IController;
+import com.mycompany.filetransferwithui.interfaces.IMainUIObserver;
+import com.mycompany.filetransferwithui.models.AppSettings;
+import com.mycompany.filetransferwithui.models.FileItemModel;
+import com.mycompany.filetransferwithui.models.ServerInformation;
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javafx.stage.Stage;
+import com.mycompany.filetransferwithui.interfaces.ITcpIpObserver;
+import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingDeque;
+
+/**
+ *
+ * @author mek
+ */
+public class FileClientController extends TcpIpConnectionController implements IController, IBroadcastObserver, IMainUIObserver, ITcpIpObserver {
+
+    private FileClient fileClient;
+    private BroadcastClient broadcastClient;
+    private ArrayList<IApp> mainAppObservers = new ArrayList<IApp>();
+
+    private BlockingQueue queue = new LinkedBlockingDeque<FileItemModel>();
+
+    public FileClientController(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void run() {
+        beforeStart();
+        doStart();
+        afterStart();
+    }
+
+    @Override
+    public void beforeStart() {
+        readAndLoadSettings();
+        showMainWindow(TcpIpType.FileClient);
+    }
+
+    @Override
+    public void doStart() {
+
+        fileClient = new FileClient(appSetting, queue);
+        fileClient.hookObservers(this);
+        controller.hookClientObserver(this);
+    }
+
+    @Override
+    public void afterStart() {
+
+        broadcastClient = new BroadcastClient();
+        broadcastClient.hookObserver(this);
+        broadcastClient.start();
+
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setAppSetting(AppSettings appSetting) {
+        this.appSetting = appSetting;
+    }
+
+    @Override
+    public void newServerInformationReady(ServerInformation inform) {
+        controller.addServerToComboBox(inform);
+    }
+
+    @Override
+    public void connectServerRequested(ServerInformation inform) {
+        try {
+            fileClient.connectToServer(inform);
+            controller.serverConnectedSuccess();
+        } catch (Exception ex) {
+            controller.serverConnectedFailed();
+        }
+
+    }
+
+    @Override
+    public void newFilesTakenRequested(List<File> selectedFiles) {
+
+        new Thread() {
+            public void run() {
+                try {
+                    ArrayList<FileItemModel> models;
+                    models = fileClient.generateItemModels(selectedFiles);
+                    for (FileItemModel file : models) {
+                        fileClient.getFileQueue().put(file);
+                        //fileServer.getFileQueue().notifyAll();
+                    }
+                    fileProgressedRequested(fileClient.getFileQueue().size());
+                } catch (IOException ex) {
+                    Logger.getLogger(FileClientController.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(FileClientController.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }.start();
+
+    }
+
+    @Override
+    public void newPostFileRequested(FileItemModel model) {
+        controller.postNewFileRequested(model);
+    }
+
+    @Override
+    public void percentageChangedPostRequested(FileItemModel file, double percentage) {
+        percentage = percentage / 100;
+        controller.postPertangeChangeRequested(file, percentage);
+    }
+
+    @Override
+    public void newGetFileRequested(FileItemModel model) {
+        controller.getNewFileRequested(model);
+    }
+
+    @Override
+    public void percentageChangedGetRequested(FileItemModel file, double percentage) {
+        percentage = percentage / 100;
+        controller.getPertangeChangeRequested(file, percentage);
+    }
+
+    @Override
+    public void ExitRequested() {
+
+        broadcastClient.unHookObserver(this);
+        fileClient.stopRunning();
+        broadcastClient.stopRunning();
+        notifyAppExitRequested();
+    }
+
+    public void hookMainAppObserver(IApp client) {
+        mainAppObservers.add(client);
+    }
+
+    public void unHookMainAppObserver(IApp client) {
+        mainAppObservers.remove(client);
+    }
+
+    private void notifyAppExitRequested() {
+        for (int i = 0; i < mainAppObservers.size(); i++) {
+            mainAppObservers.get(i).exitRequested();
+        }
+    }
+
+    @Override
+    public void connectionFailedRequested() {
+
+        try {
+            Helpers.AppHelper.restartApplication();
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(FileClientController.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(FileClientController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    @Override
+    public void clientConnectedRequested(String destinationIP) {
+
+    }
+
+    @Override
+    public void serverConnectedRequested(String destinationIP) {
+        controller.showNotifications("Connected to server(" + destinationIP + ")!");
+    }
+
+    @Override
+    public void fileProgressedRequested(int count) {
+        controller.notifyUserForProgressedFiles(count);
+    }
+
+    @Override
+    public void threadNeedTimeToFectch() {
+
+        controller.showThreadStatus(processedThreadCount.incrementAndGet());
+    }
+
+    @Override
+    public void threadCompleteToFectch() {
+
+        controller.showThreadStatus(processedThreadCount.decrementAndGet());
+
+    }
+
+    @Override
+    public void sendingStatusChange(boolean isReady) {
+        controller.setStatusText(isReady);
+    }
+
+    @Override
+    public void disconnect() {
+        if (fileClient.isIsConnected() == true) {
+            try {
+                fileClient.closeConnection();
+            } catch (IOException ex) {
+                Logger.getLogger(FileClientController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
+}

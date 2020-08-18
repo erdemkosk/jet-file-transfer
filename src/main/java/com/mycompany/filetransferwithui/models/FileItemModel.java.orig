@@ -1,0 +1,95 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.mycompany.filetransferwithui.models;
+
+/**
+ *
+ * @author mek
+ */
+public class FileItemModel {
+
+    private String fileName;
+    private double percentageOfLoadedFile;
+    private String time;
+    private String transferSpeed;
+    private int ID;
+    private long fileLength;
+    private String fileAbsolutePath;
+
+    public String getFileAbsolutePath() {
+        return fileAbsolutePath;
+    }
+
+    public void setFileAbsolutePath(String fileAbsolutePath) {
+        this.fileAbsolutePath = fileAbsolutePath;
+    }
+
+    public String getTransferSpeed() {
+        return transferSpeed;
+    }
+
+    public void setTransferSpeed(String transferSpeed) {
+        this.transferSpeed = transferSpeed;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    public double getPercentageOfLoadedFile() {
+        return percentageOfLoadedFile;
+    }
+
+    public void setPercentageOfLoadedFile(double percentageOfLoadedFile) {
+        this.percentageOfLoadedFile = percentageOfLoadedFile;
+    }
+
+    public int getID() {
+        return ID;
+    }
+
+    public void setID(int ID) {
+        this.ID = ID;
+    }
+
+    public long getFileLength() {
+        return fileLength;
+    }
+
+    public void setFileLength(long fileLength) {
+        this.fileLength = fileLength;
+    }
+
+    public FileItemModel(String fileName, double percentageOfLoadedFile, String time, String transferSpeed) {
+        this.fileName = fileName;
+        this.percentageOfLoadedFile = percentageOfLoadedFile;
+        this.time = time;
+        this.transferSpeed = transferSpeed;
+    }
+
+    public FileItemModel(String fileName, double percentageOfLoadedFile, String time, String transferSpeed, int ID, long fileLength, String fileAbsolutePath) {
+        this.fileName = fileName;
+        this.percentageOfLoadedFile = percentageOfLoadedFile;
+        this.time = time;
+        this.transferSpeed = transferSpeed;
+        this.ID = ID;
+        this.transferSpeed = transferSpeed;
+        this.fileAbsolutePath = fileAbsolutePath;
+    }
+
+}
