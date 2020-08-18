@@ -28,8 +28,14 @@ License
 ----
 Apache 2.0
 
+## Releases
+
+[Github Release](https://github.com/erdemkosk/jet-file-transfer/releases/tag/1.0.0.0)
+
+
 ## Links
 
 [Google Play](https://play.google.com/store/apps/details?id=com.jetfiletransfer.mek.jetfiletransfer&hl=tr)
 
 [For Desktop](https://sourceforge.net/projects/jet-file-transfer/)
+
