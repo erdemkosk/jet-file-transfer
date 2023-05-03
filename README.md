@@ -1,4 +1,4 @@
-# Jet File Transfer [![](https://github.com/erdemkosk/jet-file-transfer/blob/master/src/main/resources/images/app.png?raw=true)
+# Jet File Transfer (https://github.com/erdemkosk/jet-file-transfer/blob/master/src/main/resources/images/app.png?raw=true)
 ![](https://media.giphy.com/media/Y3N5j2w8f5gsaCgjL1/giphy.gif)
 
 Jet File Transfer is an application that allows you to easily share files and folders between devices connected to the same network without using the Internet. Desktop application is free for all desktop operating systems. Since two devices launched as server and client can find each other automatically, just press a button!
