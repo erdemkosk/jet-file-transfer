@@ -23,18 +23,21 @@ jobs:
             package_path: JetFileTransfer
             archive_ext: tar.gz
             icon_path: packaging/app-512.png
+            jpackage_type: app-image
           - os: macos-latest
             javafx_platform: mac-aarch64
             asset_name: JetFileTransfer-macos-aarch64
-            package_path: JetFileTransfer.app
-            archive_ext: zip
+            package_path: JetFileTransfer-1.dmg
+            archive_ext: dmg
             icon_path: packaging/app.icns
+            jpackage_type: dmg
           - os: windows-latest
             javafx_platform: win
             asset_name: JetFileTransfer-windows-x64
             package_path: JetFileTransfer
             archive_ext: zip
             icon_path: packaging/app.ico
+            jpackage_type: app-image
 
     steps:
       - name: Checkout
@@ -62,29 +65,34 @@ jobs:
       - name: Prepare distribution input
         shell: bash
         run: |
-          mkdir -p target/dist-input
-          cp target/JetFileTransfer.jar target/dist-input/
-          cp -R target/lib/. target/dist-input/
+          mkdir -p target/app-input target/javafx-lib
+          cp target/JetFileTransfer.jar target/app-input/
+          cp target/lib/gson-*.jar target/lib/jfoenix-*.jar target/lib/commons-io-*.jar target/lib/TrayNotification-*.jar target/app-input/
+          cp target/lib/javafx-*.jar target/javafx-lib/
 
       - name: Package application (Unix)
         if: runner.os != 'Windows'
         shell: bash
         run: |
           rm -rf target/dist
-          jpackage \
-            --type app-image \
-            --input target/dist-input \
-            --dest target/dist \
-            --name JetFileTransfer \
-            --app-version "${{ github.run_number }}" \
-            --main-jar JetFileTransfer.jar \
-            --main-class com.mycompany.filetransferwithui.MainApp \
-            --icon "${{ matrix.icon_path }}" \
-            --java-options "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED" \
-            --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED" \
-            --java-options "--add-opens=java.base/java.text=ALL-UNNAMED" \
-            --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED" \
+          JPACKAGE_ARGS=(
+            --type app-image
+            --input target/app-input
+            --dest target/dist
+            --name JetFileTransfer
+            --app-version "${{ github.run_number }}"
+            --main-jar JetFileTransfer.jar
+            --main-class com.mycompany.filetransferwithui.MainApp
+            --icon "${{ matrix.icon_path }}"
+            --module-path target/javafx-lib
+            --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base,ALL-DEFAULT
+            --java-options "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
+            --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED"
+            --java-options "--add-opens=java.base/java.text=ALL-UNNAMED"
+            --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
             --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+          )
+          jpackage "${JPACKAGE_ARGS[@]}"
 
       - name: Package application (Windows)
         if: runner.os == 'Windows'
@@ -93,20 +101,22 @@ jobs:
           if (Test-Path target/dist) { Remove-Item -Recurse -Force target/dist }
           jpackage `
             --type app-image `
-            --input target/dist-input `
+            --input target/app-input `
             --dest target/dist `
             --name JetFileTransfer `
             --app-version "${{ github.run_number }}" `
             --main-jar JetFileTransfer.jar `
             --main-class com.mycompany.filetransferwithui.MainApp `
             --icon "${{ matrix.icon_path }}" `
+            --module-path target/javafx-lib `
+            --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base,ALL-DEFAULT `
             --java-options "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED" `
             --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED" `
             --java-options "--add-opens=java.base/java.text=ALL-UNNAMED" `
             --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED" `
             --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
 
-      - name: Sign macOS app
+      - name: Sign macOS app bundle
         if: runner.os == 'macOS'
         env:
           APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
@@ -143,9 +153,21 @@ jobs:
               xcrun stapler staple "$APP"
             fi
           else
-            echo "No Apple certificate configured, using ad-hoc signature..."
+            echo "Using ad-hoc signature..."
             codesign --force --deep --sign - "$APP"
           fi
+
+      - name: Create macOS DMG
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          rm -f target/dist/*.dmg
+          jpackage --type dmg \
+            --app-image target/dist/JetFileTransfer.app \
+            --dest target/dist \
+            --name JetFileTransfer \
+            --app-version "${{ github.run_number }}"
+          mv target/dist/JetFileTransfer-1.dmg "target/${{ matrix.asset_name }}.dmg"
 
       - name: Create archive (Linux)
         if: matrix.archive_ext == 'tar.gz'
@@ -154,14 +176,6 @@ jobs:
           cd target/dist
           tar -czf "../${{ matrix.asset_name }}.tar.gz" "${{ matrix.package_path }}"
 
-      - name: Create archive (macOS)
-        if: runner.os == 'macOS'
-        shell: bash
-        run: |
-          cp packaging/macos/Install-JetFileTransfer.command target/dist/
-          chmod +x target/dist/Install-JetFileTransfer.command
-          cd target/dist
-          zip -ry "../${{ matrix.asset_name }}.zip" "${{ matrix.package_path }}" Install-JetFileTransfer.command
 
       - name: Create archive (Windows)
         if: runner.os == 'Windows'
@@ -195,15 +209,6 @@ jobs:
           tag_name: release-${{ github.run_number }}
           name: Release ${{ github.run_number }} (${{ github.sha }})
           generate_release_notes: true
-          body: |
-            ## macOS kurulum notu
-            GitHub'dan indirilen uygulama imzasız olduğu için macOS güvenlik uyarısı verebilir.
-            Zip'i açtıktan sonra **`Install-JetFileTransfer.command`** dosyasına çift tıklayın.
-            Alternatif terminal komutu:
-            ```bash
-            xattr -cr JetFileTransfer.app && open JetFileTransfer.app
-            ```
-            Kalıcı çözüm için Apple Developer notarization secret'ları eklenebilir.
           files: release-assets/**/*
         env:
           GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}
