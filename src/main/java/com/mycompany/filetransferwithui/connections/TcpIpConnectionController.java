@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -48,16 +49,23 @@ public class TcpIpConnectionController {
     }
 
     protected void showMainWindow(TcpIpType type) {
+        if (Platform.isFxApplicationThread()) {
+            showMainWindowOnFxThread(type);
+        } else {
+            Platform.runLater(() -> showMainWindowOnFxThread(type));
+        }
+    }
+
+    private void showMainWindowOnFxThread(TcpIpType type) {
         try {
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/fxml/MainFXML.fxml")
             );
 
-            Parent root = (Parent) loader.load();
+            Parent root = loader.load();
             Scene scene = new Scene(root, 425, 466);
 
             controller = loader.getController();
-            controller = loader.<MainFXMLController>getController();
             controller.setAppSettings(appSetting);
             controller.seedItemsForConnectionType(type);
 
@@ -78,14 +86,11 @@ public class TcpIpConnectionController {
 
             scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
             stage.setScene(scene);
-
             stage.show();
 
         } catch (IOException ex) {
-
+            Logger.getLogger(TcpIpConnectionController.class.getName()).log(Level.SEVERE, null, ex);
         }
-
-        //scene.getStylesheets().add("/styles/Styles.css");
     }
 
     public AtomicInteger getProcessedThreadCount() {

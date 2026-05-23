@@ -22,6 +22,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.application.Platform;
 import javafx.stage.Stage;
 
 public class PeerController extends TcpIpConnectionController
@@ -179,35 +180,37 @@ public class PeerController extends TcpIpConnectionController
         }
         connected = true;
         peerDiscovery.stop();
-        showMainWindow(TcpIpType.FileServer);
-        controller.hookClientObserver(this);
-        controller.clientConnected();
-        controller.showNotifications("Device (" + destinationIP + ") connected!");
+        Platform.runLater(() -> {
+            showMainWindow(TcpIpType.FileServer);
+            controller.hookClientObserver(this);
+            controller.clientConnected();
+            controller.showNotifications("Device (" + destinationIP + ") connected!");
+        });
     }
 
     @Override
     public void serverConnectedRequested(String destinationIP) {
-        controller.showNotifications("Connected to device (" + destinationIP + ")!");
+        Platform.runLater(() -> controller.showNotifications("Connected to device (" + destinationIP + ")!"));
     }
 
     @Override
     public void fileProgressedRequested(int count) {
-        controller.notifyUserForProgressedFiles(count);
+        Platform.runLater(() -> controller.notifyUserForProgressedFiles(count));
     }
 
     @Override
     public void threadNeedTimeToFectch() {
-        controller.showThreadStatus(processedThreadCount.incrementAndGet());
+        Platform.runLater(() -> controller.showThreadStatus(processedThreadCount.incrementAndGet()));
     }
 
     @Override
     public void threadCompleteToFectch() {
-        controller.showThreadStatus(processedThreadCount.decrementAndGet());
+        Platform.runLater(() -> controller.showThreadStatus(processedThreadCount.decrementAndGet()));
     }
 
     @Override
     public void sendingStatusChange(boolean isReady) {
-        controller.setStatusText(isReady);
+        Platform.runLater(() -> controller.setStatusText(isReady));
     }
 
     @Override
