@@ -78,13 +78,12 @@ public class MainApp extends Application implements IControllerTemplate {
                     Class<?> cls = Class.forName(className);
 
                     // Replace: Application application = Application.getApplication();
-                    Object application = cls.newInstance().getClass().getMethod("getApplication")
-                            .invoke(null);
+                    Object application = cls.getMethod("getApplication").invoke(null);
 
                     // Replace: application.setDockIconImage(image);
                     application.getClass().getMethod("setDockIconImage", java.awt.Image.class)
                             .invoke(application, applicationIconforMac);
-                } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException | InstantiationException e) {
+                } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
                     e.printStackTrace();
                 }
                 break;

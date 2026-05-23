@@ -1,0 +1,144 @@
+name: Build and Release
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Build (${{ matrix.asset_name }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            javafx_platform: linux
+            asset_name: JetFileTransfer-linux-x64
+            package_path: JetFileTransfer
+            archive_ext: tar.gz
+          - os: macos-latest
+            javafx_platform: mac-aarch64
+            asset_name: JetFileTransfer-macos-aarch64
+            package_path: JetFileTransfer.app
+            archive_ext: zip
+          - os: windows-latest
+            javafx_platform: win
+            asset_name: JetFileTransfer-windows-x64
+            package_path: JetFileTransfer
+            archive_ext: zip
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: maven
+
+      - name: Build with Maven
+        shell: bash
+        run: mvn -B clean package -Djavafx.platform=${{ matrix.javafx_platform }}
+
+      - name: Prepare distribution input
+        shell: bash
+        run: |
+          mkdir -p target/dist-input
+          cp target/JetFileTransfer.jar target/dist-input/
+          cp -R target/lib/. target/dist-input/
+
+      - name: Package application (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          rm -rf target/dist
+          jpackage \
+            --type app-image \
+            --input target/dist-input \
+            --dest target/dist \
+            --name JetFileTransfer \
+            --app-version "${{ github.run_number }}" \
+            --main-jar JetFileTransfer.jar \
+            --main-class com.mycompany.filetransferwithui.MainApp \
+            --java-options "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED" \
+            --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED" \
+            --java-options "--add-opens=java.base/java.text=ALL-UNNAMED" \
+            --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED" \
+            --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+
+      - name: Package application (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          if (Test-Path target/dist) { Remove-Item -Recurse -Force target/dist }
+          jpackage `
+            --type app-image `
+            --input target/dist-input `
+            --dest target/dist `
+            --name JetFileTransfer `
+            --app-version "${{ github.run_number }}" `
+            --main-jar JetFileTransfer.jar `
+            --main-class com.mycompany.filetransferwithui.MainApp `
+            --java-options "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED" `
+            --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED" `
+            --java-options "--add-opens=java.base/java.text=ALL-UNNAMED" `
+            --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED" `
+            --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+
+      - name: Create archive (Linux)
+        if: matrix.archive_ext == 'tar.gz'
+        shell: bash
+        run: |
+          cd target/dist
+          tar -czf "../${{ matrix.asset_name }}.tar.gz" "${{ matrix.package_path }}"
+
+      - name: Create archive (macOS)
+        if: runner.os == 'macOS'
+        shell: bash
+        run: |
+          cd target/dist
+          zip -ry "../${{ matrix.asset_name }}.zip" "${{ matrix.package_path }}"
+
+      - name: Create archive (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          Compress-Archive -Path "target/dist/${{ matrix.package_path }}" -DestinationPath "target/${{ matrix.asset_name }}.zip" -Force
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.asset_name }}
+          path: target/${{ matrix.asset_name }}.${{ matrix.archive_ext }}
+          if-no-files-found: error
+
+  release:
+    name: Publish GitHub Release
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-assets
+          merge-multiple: true
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          token: ${{ secrets.DEPLOY_TOKEN }}
+          tag_name: release-${{ github.run_number }}
+          name: Release ${{ github.run_number }} (${{ github.sha }})
+          generate_release_notes: true
+          files: release-assets/**/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.DEPLOY_TOKEN }}

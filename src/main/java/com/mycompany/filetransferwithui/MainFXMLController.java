@@ -9,7 +9,10 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXDrawer;
 import com.jfoenix.controls.JFXHamburger;
 import com.jfoenix.controls.JFXSnackbar;
+import com.jfoenix.controls.JFXSnackbarLayout;
 import com.jfoenix.transitions.hamburger.HamburgerSlideCloseTransition;
+import com.github.plushaze.traynotification.animations.Animations;
+import com.github.plushaze.traynotification.notification.TrayNotification;
 import com.mycompany.filetransferwithui.enums.TcpIpType;
 import com.mycompany.filetransferwithui.interfaces.IMainUIObserver;
 import com.mycompany.filetransferwithui.models.AppSettings;
@@ -54,9 +57,6 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.scene.paint.Paint;
 import javafx.util.Duration;
-import tray.notification.TrayNotification;
-
-import tray.animations.AnimationType;
 
 /**
  *
@@ -211,7 +211,7 @@ public class MainFXMLController implements Initializable {
                     hamburger.addEventHandler(MouseEvent.MOUSE_CLICKED, (e) -> {
                         transition.setRate(transition.getRate() * -1);
                         transition.play();
-                        if (drawer.isShown() == true) {
+                        if (drawer.isOpened()) {
                             drawer.close();
                         } else {
                             drawer.open();
@@ -219,7 +219,7 @@ public class MainFXMLController implements Initializable {
                     });
                     transition.setRate(transition.getRate() * -1);
                     transition.play();
-                    if (drawer.isShown() == true) {
+                    if (drawer.isOpened()) {
                         drawer.close();
                     } else {
                         drawer.open();
@@ -304,7 +304,9 @@ public class MainFXMLController implements Initializable {
             btn_exit.setOpacity(0.5);
             btn_min.setOpacity(0.5);
             btn_download.setOpacity(0.5);
-            snackBar.show("      Drag and drop file(s) or folder(s)      ", 3000);
+            snackBar.enqueue(new JFXSnackbar.SnackbarEvent(
+                    new JFXSnackbarLayout("      Drag and drop file(s) or folder(s)      "),
+                    Duration.millis(3000)));
         }
 
     }
@@ -514,7 +516,7 @@ public class MainFXMLController implements Initializable {
                             tray.setTitle("Jet FileTransfer");
                             tray.setMessage(message);
                             tray.setRectangleFill(Paint.valueOf("#e67e22"));
-                            tray.setAnimationType(AnimationType.SLIDE);
+                            tray.setAnimation(Animations.SLIDE);
                             tray.setImage(programIcon);
                             tray.showAndDismiss(Duration.seconds(5));
                         } catch (Exception ex) {
@@ -557,7 +559,9 @@ public class MainFXMLController implements Initializable {
     private void readForShowIpAndPassword() {
         connectionSnackbar = new JFXSnackbar(h_connectwait);
         try {
-            connectionSnackbar.show("Server " + InetAddress.getLocalHost().getHostAddress().toString() + ":" + appSettings.getPortNumber(), 6000);
+            connectionSnackbar.enqueue(new JFXSnackbar.SnackbarEvent(
+                    new JFXSnackbarLayout("Server " + InetAddress.getLocalHost().getHostAddress() + ":" + appSettings.getPortNumber()),
+                    Duration.millis(6000)));
         } catch (UnknownHostException ex) {
             Logger.getLogger(MainFXMLController.class.getName()).log(Level.SEVERE, null, ex);
         }
