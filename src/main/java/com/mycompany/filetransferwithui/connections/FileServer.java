@@ -87,17 +87,14 @@ public class FileServer extends TcpConnections implements Runnable {
                 dis = new DataInputStream(bis);
                 bos = new BufferedOutputStream(socket.getOutputStream());
                 dos = new DataOutputStream(bos);
-                //Karşıdaki clientin ıpsi
+
+                String clientIP = socket.getRemoteSocketAddress().toString();
+                String[] parts = clientIP.split(":");
+                String ip = parts[0].replace("/", "");
+                notifyClientConnectedRequested(ip);
             } catch (IOException ex) {
                 Logger.getLogger(FileServer.class.getName()).log(Level.SEVERE, null, ex);
             }
-            String clientIP = socket.getRemoteSocketAddress().toString();
-
-            String[] parts = clientIP.split(":");
-            String ip = parts[0]; // 004
-            ip = ip.replace("/", "");
-            notifyClientConnectedRequested(ip);
-
         }
     }
 

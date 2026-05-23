@@ -33,12 +33,14 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
+import javafx.scene.Scene;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
 
 public class PeerSelectionFXMLController implements Initializable, IPeerDiscoveryObserver, IApp {
 
     private Stage stage;
+    private Scene peerSelectionScene;
     private AppSettings appSettings;
     private PeerController peerController;
     private final ApplicationSettingsManager appManager = new ApplicationSettingsManager();
@@ -100,12 +102,24 @@ public class PeerSelectionFXMLController implements Initializable, IPeerDiscover
 
     public void setStage(Stage stage) {
         this.stage = stage;
+        this.peerSelectionScene = stage != null ? stage.getScene() : null;
         if (stage == null) {
             return;
         }
         peerController = new PeerController(stage, this);
         peerController.hookMainAppObserver(this);
         peerController.start();
+    }
+
+    public void returnToPeerSelection() {
+        if (stage == null || peerSelectionScene == null) {
+            return;
+        }
+        stage.setScene(peerSelectionScene);
+        stage.show();
+        peerList.clear();
+        peersById.clear();
+        statusLabel.setText("Looking for nearby devices...");
     }
 
     private void seedSettings(AppSettings settings) {

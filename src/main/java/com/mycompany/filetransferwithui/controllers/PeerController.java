@@ -186,12 +186,47 @@ public class PeerController extends TcpIpConnectionController
     private void closeActiveConnection() {
         try {
             if (fileClient != null && fileClient.hasActiveConnection()) {
-                fileClient.closeConnection();
+                fileClient.releaseConnection();
             } else if (fileServer != null && fileServer.hasActiveConnection()) {
-                fileServer.closeConnection();
+                fileServer.releaseConnection();
             }
         } catch (IOException ex) {
             Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+
+    public void resetAfterDisconnect() {
+        if (controller != null) {
+            controller.unHookClientObserver(this);
+            controller = null;
+        }
+
+        try {
+            if (fileClient != null) {
+                fileClient.unHookObservers(this);
+                if (fileClient.hasActiveConnection()) {
+                    fileClient.releaseConnection();
+                }
+                fileClient.stopRunning();
+                fileClient = null;
+            }
+
+            if (fileServer != null) {
+                if (fileServer.hasActiveConnection()) {
+                    fileServer.releaseConnection();
+                }
+                fileServer.setAcceptingConnections(true);
+                fileServer.resetConnectionCloseState();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        queue.clear();
+        connected = false;
+
+        if (peerDiscovery != null) {
+            peerDiscovery.start();
         }
     }
 
@@ -211,13 +246,20 @@ public class PeerController extends TcpIpConnectionController
 
     @Override
     public void connectionFailedRequested() {
-        connected = false;
         Platform.runLater(() -> {
-            try {
-                closeActiveConnection();
-                Helpers.AppHelper.restartApplication();
-            } catch (URISyntaxException | IOException ex) {
-                Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
+            if (!connected && controller == null) {
+                return;
+            }
+            connected = false;
+            resetAfterDisconnect();
+            if (peerListObserver instanceof com.mycompany.filetransferwithui.PeerSelectionFXMLController peerSelection) {
+                peerSelection.returnToPeerSelection();
+            } else {
+                try {
+                    Helpers.AppHelper.restartApplication();
+                } catch (URISyntaxException | IOException ex) {
+                    Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
+                }
             }
         });
     }

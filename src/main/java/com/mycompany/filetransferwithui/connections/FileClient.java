@@ -73,6 +73,17 @@ public class FileClient extends TcpConnections implements Runnable {
         return isConnected;
     }
 
+    @Override
+    public void closeConnection() throws IOException {
+        isConnected = false;
+        super.closeConnection();
+    }
+
+    public void releaseConnection() throws IOException {
+        isConnected = false;
+        super.releaseConnection();
+    }
+
     public void setIsConnected(boolean isConnected) {
         this.isConnected = isConnected;
     }

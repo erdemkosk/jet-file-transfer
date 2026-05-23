@@ -21,6 +21,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.net.SocketException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -163,6 +164,15 @@ public class TcpConnections implements ITcpIp {
                         }
 
                         try {
+                            if (!canSendOverConnection()) {
+                                if (!isRunning) {
+                                    continue;
+                                }
+                                fileQueue.put(model);
+                                Thread.sleep(50);
+                                continue;
+                            }
+
                             notifyObserversFileProgressed(fileQueue.size());
                             String name = model.getFileName();
                             long length = model.getFile().length();
@@ -208,13 +218,20 @@ public class TcpConnections implements ITcpIp {
                             totalTransferedBytesInoneSecondSend = 0;
                             notifySendingStatusChangeRequested(true);
                         } catch (IOException ex) {
+                            if (!isRunning || connectionClosedNotified) {
+                                return;
+                            }
                             Logger.getLogger(TcpConnections.class.getName()).log(Level.SEVERE, null, ex);
                             notifyConnectionCloseRequested();
                             return;
                         }
+                    } catch (InterruptedException ex) {
+                        Thread.currentThread().interrupt();
+                        return;
                     } catch (Exception ex) {
-
-                        Logger.getLogger(TcpConnections.class.getName()).log(Level.SEVERE, null, ex);
+                        if (!isRunning || connectionClosedNotified) {
+                            return;
+                        }
                         notifyConnectionCloseRequested();
                     }
                 }
@@ -228,6 +245,9 @@ public class TcpConnections implements ITcpIp {
     }
 
     public void waitFilesFromConnection() {
+        if (!canReceiveOverConnection()) {
+            return;
+        }
 
         try {
 
@@ -270,7 +290,15 @@ public class TcpConnections implements ITcpIp {
             }
 
 //dis.close();}
+        } catch (SocketException ex) {
+            if (!isRunning || connectionClosedNotified) {
+                return;
+            }
+            notifyConnectionCloseRequested();
         } catch (Exception ex) {
+            if (!isRunning || connectionClosedNotified) {
+                return;
+            }
 
             Logger.getLogger(TcpConnections.class.getName()).log(Level.SEVERE, null, ex);
             notifyConnectionCloseRequested();
@@ -279,22 +307,48 @@ public class TcpConnections implements ITcpIp {
     //dis.close();
 
     public void closeConnection() throws IOException {
+        releaseConnection();
         isRunning = false;
+    }
+
+    public void releaseConnection() throws IOException {
         if (dos != null) {
             dos.close();
+            dos = null;
         }
         if (bos != null) {
             bos.close();
+            bos = null;
         }
         if (bis != null) {
             bis.close();
+            bis = null;
         }
         if (dis != null) {
             dis.close();
+            dis = null;
         }
         if (socket != null && !socket.isClosed()) {
             socket.close();
         }
+        socket = null;
+    }
+
+    protected boolean canSendOverConnection() {
+        return isRunning
+                && dos != null
+                && bos != null
+                && socket != null
+                && socket.isConnected()
+                && !socket.isClosed();
+    }
+
+    protected boolean canReceiveOverConnection() {
+        return isRunning
+                && dis != null
+                && socket != null
+                && socket.isConnected()
+                && !socket.isClosed();
     }
 
     public void hookObservers(ITcpIpObserver observer) {
@@ -341,7 +395,7 @@ public class TcpConnections implements ITcpIp {
         }
         connectionClosedNotified = true;
         try {
-            closeConnection();
+            releaseConnection();
         } catch (IOException ex) {
             Logger.getLogger(TcpConnections.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -354,7 +408,7 @@ public class TcpConnections implements ITcpIp {
         this.folderPath = saveFolderPath;
     }
 
-    protected void resetConnectionCloseState() {
+    public void resetConnectionCloseState() {
         connectionClosedNotified = false;
     }
 
