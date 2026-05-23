@@ -209,6 +209,8 @@ public class TcpConnections implements ITcpIp {
                             notifySendingStatusChangeRequested(true);
                         } catch (IOException ex) {
                             Logger.getLogger(TcpConnections.class.getName()).log(Level.SEVERE, null, ex);
+                            notifyConnectionCloseRequested();
+                            return;
                         }
                     } catch (Exception ex) {
 
@@ -237,23 +239,8 @@ public class TcpConnections implements ITcpIp {
             FileItemModel fileItem = new FileItemModel(transferModel.getFileName(), 0, "00:00", "");
             runTimerGet(fileItem);
 
-            notifyGetObserversNewFileRequested(fileItem); //notify
-            File savedfile = null;
-            if (transferModel.getFolders() != null) {
-                Path path = Paths.get(folderPath + transferModel.getFolders());
-
-                try {
-                    Files.createDirectories(path);
-                } catch (IOException e) {
-                    System.err.println("Cannot create directories - " + e);
-                }
-
-                System.out.println(transferModel.getFolders());
-                savedfile = new File(folderPath + transferModel.getFolders() + "/" + transferModel.getFileName());
-
-            } else {
-                savedfile = new File(folderPath + "/" + transferModel.getFileName());
-            }
+            notifyGetObserversNewFileRequested(fileItem);
+            File savedfile = resolveSaveFile(transferModel);
             if (savedfile != null) {
 
                 FileOutputStream fos = new FileOutputStream(savedfile);
@@ -293,11 +280,21 @@ public class TcpConnections implements ITcpIp {
 
     public void closeConnection() throws IOException {
         isRunning = false;
-        dos.close();
-        bos.close();
-        bis.close();
-        dis.close();
-        socket.close();
+        if (dos != null) {
+            dos.close();
+        }
+        if (bos != null) {
+            bos.close();
+        }
+        if (bis != null) {
+            bis.close();
+        }
+        if (dis != null) {
+            dis.close();
+        }
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
     }
 
     public void hookObservers(ITcpIpObserver observer) {
@@ -339,6 +336,10 @@ public class TcpConnections implements ITcpIp {
     }
 
     protected void notifyConnectionCloseRequested() {
+        if (connectionClosedNotified) {
+            return;
+        }
+        connectionClosedNotified = true;
         try {
             closeConnection();
         } catch (IOException ex) {
@@ -348,6 +349,24 @@ public class TcpConnections implements ITcpIp {
             temp.connectionFailedRequested();
         }
     }
+
+    public void setSaveFolderPath(String saveFolderPath) {
+        this.folderPath = saveFolderPath;
+    }
+
+    protected void resetConnectionCloseState() {
+        connectionClosedNotified = false;
+    }
+
+    public String getSaveFolderPath() {
+        return folderPath;
+    }
+
+    public boolean hasActiveConnection() {
+        return socket != null && socket.isConnected() && !socket.isClosed();
+    }
+
+    private volatile boolean connectionClosedNotified = false;
 
     protected void notifyServerConnectedRequested(String destinationIP) {
         for (int i = 0; i < observers.size(); i++) {
@@ -377,6 +396,21 @@ public class TcpConnections implements ITcpIp {
         for (int i = 0; i < observers.size(); i++) {
             observers.get(i).sendingStatusChange(isReady);
         }
+    }
+
+    private File resolveSaveFile(FileTransferModel transferModel) throws IOException {
+        java.nio.file.Path basePath = Paths.get(folderPath);
+        Files.createDirectories(basePath);
+        if (transferModel.getFolders() != null && !transferModel.getFolders().isEmpty()) {
+            String relativeFolders = transferModel.getFolders().replace('\\', '/');
+            if (relativeFolders.startsWith("/")) {
+                relativeFolders = relativeFolders.substring(1);
+            }
+            java.nio.file.Path targetDir = basePath.resolve(relativeFolders);
+            Files.createDirectories(targetDir);
+            return targetDir.resolve(transferModel.getFileName()).toFile();
+        }
+        return basePath.resolve(transferModel.getFileName()).toFile();
     }
 
     public AppSettings getSetting() {

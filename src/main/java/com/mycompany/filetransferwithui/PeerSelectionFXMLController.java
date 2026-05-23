@@ -243,6 +243,9 @@ public class PeerSelectionFXMLController implements Initializable, IPeerDiscover
             appSettings.setDiscoveryServerPortNumber(Integer.parseInt(discoveryPortLabel.getText()));
             appSettings.setShowTrayNotification(trayCheck.isSelected());
             appManager.writeConfigSettingsDeleteOldOne(appSettings);
+            if (peerController != null) {
+                peerController.applySettings(appSettings);
+            }
             manualPortText.setText(portLabel.getText());
             Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Application settings changed successfully!", ButtonType.OK);
             alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);

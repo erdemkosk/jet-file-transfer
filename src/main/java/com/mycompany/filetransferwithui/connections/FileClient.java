@@ -37,6 +37,7 @@ public class FileClient extends TcpConnections implements Runnable {
     public void connectToServer(ServerInformation inform) throws IOException {
 
         socket = new Socket(inform.getServerIP(), inform.getServerPort());
+        resetConnectionCloseState();
         bis = new BufferedInputStream(socket.getInputStream());
         dis = new DataInputStream(bis);
         bos = new BufferedOutputStream(socket.getOutputStream());

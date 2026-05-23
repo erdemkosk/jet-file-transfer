@@ -30,6 +30,14 @@ jobs:
             archive_ext: dmg
             icon_path: packaging/app.icns
             jpackage_type: dmg
+            jdk_arch: aarch64
+          - os: macos-latest
+            javafx_platform: mac
+            asset_name: JetFileTransfer-macos-x64
+            archive_ext: dmg
+            icon_path: packaging/app.icns
+            jpackage_type: dmg
+            jdk_arch: x64
           - os: windows-latest
             javafx_platform: win
             asset_name: JetFileTransfer-windows-x64
@@ -47,6 +55,7 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+          architecture: ${{ matrix.jdk_arch || 'x64' }}
           cache: maven
 
       - name: Verify app icons
@@ -59,7 +68,12 @@ jobs:
 
       - name: Build with Maven
         shell: bash
-        run: mvn -B clean package -Djavafx.platform=${{ matrix.javafx_platform }}
+        run: |
+          if [ "${{ matrix.javafx_platform }}" = "mac" ]; then
+            arch -x86_64 mvn -B clean package -Djavafx.platform=${{ matrix.javafx_platform }}
+          else
+            mvn -B clean package -Djavafx.platform=${{ matrix.javafx_platform }}
+          fi
 
       - name: Prepare distribution input
         shell: bash
@@ -85,13 +99,18 @@ jobs:
             --icon "${{ matrix.icon_path }}"
             --module-path target/javafx-lib
             --add-modules javafx.controls,javafx.fxml,javafx.graphics,javafx.base,ALL-DEFAULT
+            --java-options "--enable-native-access=javafx.graphics"
             --java-options "--add-opens=java.base/java.lang.reflect=ALL-UNNAMED"
             --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED"
             --java-options "--add-opens=java.base/java.text=ALL-UNNAMED"
             --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
             --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
           )
-          jpackage "${JPACKAGE_ARGS[@]}"
+          if [ "${{ matrix.javafx_platform }}" = "mac" ]; then
+            arch -x86_64 jpackage "${JPACKAGE_ARGS[@]}"
+          else
+            jpackage "${JPACKAGE_ARGS[@]}"
+          fi
 
       - name: Package application (Windows)
         if: runner.os == 'Windows'
@@ -161,11 +180,19 @@ jobs:
         shell: bash
         run: |
           rm -f target/dist/*.dmg
-          jpackage --type dmg \
-            --app-image target/dist/JetFileTransfer.app \
-            --dest target/dist \
-            --name JetFileTransfer \
-            --app-version "${{ github.run_number }}"
+          if [ "${{ matrix.javafx_platform }}" = "mac" ]; then
+            arch -x86_64 jpackage --type dmg \
+              --app-image target/dist/JetFileTransfer.app \
+              --dest target/dist \
+              --name JetFileTransfer \
+              --app-version "${{ github.run_number }}"
+          else
+            jpackage --type dmg \
+              --app-image target/dist/JetFileTransfer.app \
+              --dest target/dist \
+              --name JetFileTransfer \
+              --app-version "${{ github.run_number }}"
+          fi
           shopt -s nullglob
           DMG_FILES=(target/dist/*.dmg)
           if [ ${#DMG_FILES[@]} -eq 0 ]; then

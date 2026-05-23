@@ -52,7 +52,6 @@ public class ApplicationSettingsManager {
 	public ApplicationSettingsManager() {
 		gson = new Gson();
 		checkAndReadyPath();
-		System.out.println(path);
 	}
 
 	private void generateDefaultConfig() {
@@ -103,6 +102,13 @@ public class ApplicationSettingsManager {
 	}
 
 	public void writeConfigSettingsDeleteOldOne(AppSettings settings) {
+		if (settings.getSaveFolderPath() != null && !settings.getSaveFolderPath().trim().isEmpty()) {
+			settings.setSaveFolderPath(new File(settings.getSaveFolderPath().trim()).getAbsolutePath());
+			try {
+				Files.createDirectories(Paths.get(settings.getSaveFolderPath()));
+			} catch (IOException ignored) {
+			}
+		}
 		File file = new File(path + "/settings.jft");
 		file.delete();
 		String json = gson.toJson(settings);

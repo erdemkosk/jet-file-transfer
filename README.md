@@ -13,6 +13,7 @@ Pre-built packages are published on [GitHub Releases](https://github.com/erdemko
 | Platform | File |
 |----------|------|
 | macOS (Apple Silicon) | `JetFileTransfer-macos-aarch64.dmg` |
+| macOS (Intel) | `JetFileTransfer-macos-x64.dmg` |
 | Windows | `JetFileTransfer-windows-x64.zip` |
 | Linux | `JetFileTransfer-linux-x64.tar.gz` |
 
@@ -22,7 +23,9 @@ Release builds include a bundled Java runtime — **you do not need to install J
 
 ## macOS installation
 
-1. Download `JetFileTransfer-macos-aarch64.dmg` from GitHub Releases.
+1. Download the DMG for your Mac from GitHub Releases:
+   - Apple Silicon (M1/M2/M3): `JetFileTransfer-macos-aarch64.dmg`
+   - Intel Mac: `JetFileTransfer-macos-x64.dmg`
 2. Open the DMG and drag **Jet File Transfer** into **Applications**.
 3. Run the commands below before the first launch.
 
@@ -80,7 +83,7 @@ tar -xzf JetFileTransfer-linux-x64.tar.gz
 |---|---|
 | **Java** | Not required — bundled in the release package |
 | **Network** | Local network (Wi‑Fi / LAN). Internet is not used for file transfer |
-| **macOS** | Apple Silicon (M1/M2/M3). See [macOS installation](#macos-installation) above |
+| **macOS** | Apple Silicon or Intel (download matching DMG). See [macOS installation](#macos-installation) above |
 | **Windows** | 64-bit Windows 10 or later |
 | **Linux** | 64-bit Linux with glibc (most modern distros) |
 

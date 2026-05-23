@@ -82,6 +82,7 @@ public class FileServer extends TcpConnections implements Runnable {
         if (socket == null && acceptingConnections) {
             try {
                 socket = serverSocket.accept();
+                resetConnectionCloseState();
                 bis = new BufferedInputStream(socket.getInputStream());
                 dis = new DataInputStream(bis);
                 bos = new BufferedOutputStream(socket.getOutputStream());

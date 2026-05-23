@@ -11,6 +11,7 @@ import com.mycompany.filetransferwithui.interfaces.IController;
 import com.mycompany.filetransferwithui.interfaces.IMainUIObserver;
 import com.mycompany.filetransferwithui.interfaces.IPeerDiscoveryObserver;
 import com.mycompany.filetransferwithui.interfaces.ITcpIpObserver;
+import com.mycompany.filetransferwithui.models.AppSettings;
 import com.mycompany.filetransferwithui.models.FileItemModel;
 import com.mycompany.filetransferwithui.models.ServerInformation;
 import java.io.File;
@@ -43,6 +44,7 @@ public class PeerController extends TcpIpConnectionController
 
     public void start() {
         readAndLoadSettings();
+        applySaveFolder(appSetting.getSaveFolderPath());
         fileServer = new FileServer(appSetting, queue);
         fileServer.hookObservers(this);
         fileServer.start();
@@ -53,11 +55,41 @@ public class PeerController extends TcpIpConnectionController
         peerDiscovery.start();
     }
 
+    public void applySettings(AppSettings settings) {
+        this.appSetting = settings;
+        applySaveFolder(settings.getSaveFolderPath());
+    }
+
+    private void applySaveFolder(String saveFolderPath) {
+        if (saveFolderPath == null || saveFolderPath.trim().isEmpty()) {
+            return;
+        }
+        String normalizedPath = new File(saveFolderPath.trim()).getAbsolutePath();
+        appSetting.setSaveFolderPath(normalizedPath);
+        try {
+            java.nio.file.Files.createDirectories(java.nio.file.Paths.get(normalizedPath));
+        } catch (IOException ex) {
+            Logger.getLogger(PeerController.class.getName()).log(Level.WARNING, "Could not create save folder", ex);
+        }
+        if (fileServer != null) {
+            fileServer.setSaveFolderPath(normalizedPath);
+        }
+        if (fileClient != null) {
+            fileClient.setSaveFolderPath(normalizedPath);
+        }
+    }
+
+    private void reloadSettingsFromDisk() {
+        readAndLoadSettings();
+        applySaveFolder(appSetting.getSaveFolderPath());
+    }
+
     public void connectToPeer(ServerInformation peer) {
         if (connected || peer == null) {
             return;
         }
 
+        reloadSettingsFromDisk();
         fileServer.setAcceptingConnections(false);
         fileClient = new FileClient(appSetting, queue);
         fileClient.hookObservers(this);
@@ -132,7 +164,7 @@ public class PeerController extends TcpIpConnectionController
 
     @Override
     public void ExitRequested() {
-        disconnect();
+        closeActiveConnection();
         if (controller != null) {
             controller.unHookClientObserver(this);
         }
@@ -147,7 +179,20 @@ public class PeerController extends TcpIpConnectionController
             peerDiscovery.removeObserver(peerListObserver);
             peerDiscovery.stop();
         }
+        connected = false;
         notifyAppExitRequested();
+    }
+
+    private void closeActiveConnection() {
+        try {
+            if (fileClient != null && fileClient.hasActiveConnection()) {
+                fileClient.closeConnection();
+            } else if (fileServer != null && fileServer.hasActiveConnection()) {
+                fileServer.closeConnection();
+            }
+        } catch (IOException ex) {
+            Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     public void hookMainAppObserver(IApp client) {
@@ -166,11 +211,15 @@ public class PeerController extends TcpIpConnectionController
 
     @Override
     public void connectionFailedRequested() {
-        try {
-            Helpers.AppHelper.restartApplication();
-        } catch (URISyntaxException | IOException ex) {
-            Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        connected = false;
+        Platform.runLater(() -> {
+            try {
+                closeActiveConnection();
+                Helpers.AppHelper.restartApplication();
+            } catch (URISyntaxException | IOException ex) {
+                Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        });
     }
 
     @Override
@@ -215,13 +264,7 @@ public class PeerController extends TcpIpConnectionController
 
     @Override
     public void disconnect() {
-        if (fileClient != null && fileClient.isIsConnected()) {
-            try {
-                fileClient.closeConnection();
-            } catch (IOException ex) {
-                Logger.getLogger(PeerController.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        closeActiveConnection();
     }
 
     @Override
