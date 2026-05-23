@@ -24,7 +24,7 @@ import com.mycompany.filetransferwithui.interfaces.IControllerTemplate;
 
 public class MainApp extends Application implements IControllerTemplate {
 
-    private ClientOrServerSelectionFXMLController controller;
+    private PeerSelectionFXMLController controller;
     private double xOffset = 0;
     private double yOffset = 0;
 
@@ -103,7 +103,7 @@ public class MainApp extends Application implements IControllerTemplate {
     @Override
     public void doStart() {
         try {
-            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/ClientOrServerSelectionFXML.fxml"));
+            FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/fxml/PeerSelectionFXML.fxml"));
             Parent root = (Parent) fxmlLoader.load();
             Scene scene = new Scene(root, 400, 500);
             //scene.getStylesheets().add("/styles/Styles.css");

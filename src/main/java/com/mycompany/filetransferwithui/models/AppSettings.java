@@ -15,6 +15,7 @@ public class AppSettings {
 	private String saveFolderPath;
 	private int discoveryServerPortNumber;
 	private boolean showTrayNotification;
+	private String peerId;
 
 	public boolean getShowTrayNotification() {
 		return showTrayNotification;
@@ -46,6 +47,14 @@ public class AppSettings {
 
 	public void setDiscoveryServerPortNumber(int discoveryServerPortNumber) {
 		this.discoveryServerPortNumber = discoveryServerPortNumber;
+	}
+
+	public String getPeerId() {
+		return peerId;
+	}
+
+	public void setPeerId(String peerId) {
+		this.peerId = peerId;
 	}
 
 	public AppSettings(int portNumber, String saveFolderPath, int discoveryServerPortNumber, boolean showTrayNotification) {

@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXCheckBox?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane prefHeight="500.0" prefWidth="400.0" style="-fx-background-color: rgba(0, 100, 100, 0);" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.mycompany.filetransferwithui.PeerSelectionFXMLController">
+   <children>
+      <AnchorPane prefHeight="73.0" prefWidth="400.0" style="-fx-background-color: #3D4956;">
+         <children>
+            <ImageView fitHeight="44.0" fitWidth="44.0" layoutX="24.0" layoutY="14.0" opacity="0.8" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/app.png" />
+               </image>
+            </ImageView>
+            <Label layoutX="74.0" layoutY="24.0" text="Jet File Transfer" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="16.0" />
+               </font>
+            </Label>
+            <ImageView fx:id="btn_setting" fitHeight="44.0" fitWidth="44.0" layoutX="228.0" layoutY="14.0" onMouseClicked="#handleButtonClicks" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/setting.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="btn_min" fitHeight="44.0" fitWidth="44.0" layoutX="286.0" layoutY="14.0" onMouseClicked="#handleButtonClicks" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/min.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="btn_exit" fitHeight="44.0" fitWidth="44.0" layoutX="344.0" layoutY="14.0" onMouseClicked="#handleButtonClicks" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/exit.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+
+      <AnchorPane layoutY="88.0" prefHeight="412.0" prefWidth="400.0" style="-fx-background-color: #3D4956;">
+         <children>
+            <Label layoutX="24.0" layoutY="16.0" text="Nearby devices" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
+            <Label fx:id="statusLabel" layoutX="24.0" layoutY="40.0" text="Looking for nearby devices..." textFill="#d9dde2">
+               <font>
+                  <Font size="11.0" />
+               </font>
+            </Label>
+            <ListView fx:id="peerListView" layoutX="24.0" layoutY="68.0" prefHeight="220.0" prefWidth="352.0" stylesheets="@../styles/ListViewStyles.css" />
+            <Separator layoutX="24.0" layoutY="302.0" opacity="0.33" prefWidth="352.0" />
+            <Label layoutX="24.0" layoutY="316.0" text="Manual connect (fallback)" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <TextField fx:id="manualIpText" layoutX="24.0" layoutY="344.0" prefHeight="27.0" prefWidth="170.0" promptText="Device IP" />
+            <TextField fx:id="manualPortText" layoutX="206.0" layoutY="344.0" prefHeight="27.0" prefWidth="90.0" promptText="Port" />
+            <ImageView fx:id="btn_connect" fitHeight="36.0" fitWidth="36.0" layoutX="340.0" layoutY="340.0" onMouseClicked="#handleManualConnect" onMouseEntered="#handleButtonHoverEnter" onMouseExited="#handleButtonHoverExit" opacity="0.5" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/client.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+
+      <AnchorPane fx:id="h_settings" layoutY="88.0" prefHeight="412.0" prefWidth="400.0" style="-fx-background-color: #3D4956;" visible="false">
+         <children>
+            <Label layoutX="24.0" layoutY="24.0" text="Select Save Folder :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="folderLabel" layoutX="24.0" layoutY="48.0" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
+            <JFXButton fx:id="selectFolderBtn" layoutX="206.0" layoutY="20.0" onMouseClicked="#handleButtonClicks" prefHeight="25.0" prefWidth="125.0" style="-fx-background-color: #e67e22; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Select Folder" />
+            <Label layoutX="24.0" layoutY="88.0" text="Port Number :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="portLabel" layoutX="24.0" layoutY="108.0" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
+            <TextField fx:id="portText" layoutX="206.0" layoutY="84.0" prefHeight="27.0" prefWidth="125.0" promptText="Port Number" />
+            <Label layoutX="24.0" layoutY="148.0" text="Discovery Port Number :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <Label fx:id="discoveryPortLabel" layoutX="24.0" layoutY="168.0" textFill="#f2efef">
+               <font>
+                  <Font size="9.0" />
+               </font>
+            </Label>
+            <TextField fx:id="portTextDiscovery" layoutX="206.0" layoutY="144.0" prefHeight="27.0" prefWidth="125.0" promptText="Discovery Port" />
+            <Label layoutX="24.0" layoutY="208.0" text="Tray Notifications :" textFill="WHITE">
+               <font>
+                  <Font name="System Bold" size="12.0" />
+               </font>
+            </Label>
+            <JFXCheckBox fx:id="trayCheck" checkedColor="#e67e22" layoutX="206.0" layoutY="208.0" text="Enable" textFill="#fffefe" />
+            <JFXButton fx:id="btnSave" layoutX="206.0" layoutY="350.0" onMouseClicked="#handleButtonClicks" prefHeight="25.0" prefWidth="125.0" style="-fx-background-color: #e67e22; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Save" />
+            <JFXButton fx:id="btnCancel" layoutX="24.0" layoutY="350.0" onMouseClicked="#handleButtonClicks" prefHeight="25.0" prefWidth="125.0" style="-fx-background-color: #515D6D; -fx-border-radius: 5em; -fx-background-radius: 5em;" text="Cancel" textFill="WHITE" />
+         </children>
+      </AnchorPane>
+   </children>
+</AnchorPane>

@@ -79,7 +79,7 @@ public class FileServer extends TcpConnections implements Runnable {
     }
 
     private void clientNotification() {
-        if (socket == null) {
+        if (socket == null && acceptingConnections) {
             try {
                 socket = serverSocket.accept();
                 bis = new BufferedInputStream(socket.getInputStream());
@@ -98,6 +98,10 @@ public class FileServer extends TcpConnections implements Runnable {
             notifyClientConnectedRequested(ip);
 
         }
+    }
+
+    public void setAcceptingConnections(boolean acceptingConnections) {
+        this.acceptingConnections = acceptingConnections;
     }
 
 }

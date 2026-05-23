@@ -55,6 +55,7 @@ public class TcpConnections implements ITcpIp {
     protected AppSettings setting;
     protected String folderPath;
     protected boolean isRunning = true;
+    protected volatile boolean acceptingConnections = true;
     protected int portNumber;
     protected ArrayList<ITcpIpObserver> observers = new ArrayList<ITcpIpObserver>();
     protected BlockingQueue<FileItemModel> fileQueue;

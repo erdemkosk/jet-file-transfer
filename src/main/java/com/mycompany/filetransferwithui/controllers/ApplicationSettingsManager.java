@@ -15,7 +15,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
-import java.lang.reflect.InvocationTargetException;
+import java.util.UUID;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import javafx.scene.image.Image;
@@ -57,7 +57,8 @@ public class ApplicationSettingsManager {
 
 	private void generateDefaultConfig() {
 
-		AppSettings settings = new AppSettings(4444, path, 8888, true); //File Server Port , SavePath , DiscoveryServerPort,Show Tray Not
+		AppSettings settings = new AppSettings(4444, path, 8888, true);
+		settings.setPeerId(UUID.randomUUID().toString());
 		String json = gson.toJson(settings);
 		try {
 			PrintWriter writer = new PrintWriter(path + "/settings.jft", "UTF-8");
@@ -89,8 +90,16 @@ public class ApplicationSettingsManager {
 		in.close();
 
 		settings = gson.fromJson(content, AppSettings.class);
+		ensurePeerId(settings);
 
 		return settings;
+	}
+
+	private void ensurePeerId(AppSettings settings) {
+		if (settings.getPeerId() == null || settings.getPeerId().trim().isEmpty()) {
+			settings.setPeerId(UUID.randomUUID().toString());
+			writeConfigSettingsDeleteOldOne(settings);
+		}
 	}
 
 	public void writeConfigSettingsDeleteOldOne(AppSettings settings) {
