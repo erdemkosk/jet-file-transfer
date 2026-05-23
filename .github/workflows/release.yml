@@ -27,7 +27,6 @@ jobs:
           - os: macos-latest
             javafx_platform: mac-aarch64
             asset_name: JetFileTransfer-macos-aarch64
-            package_path: JetFileTransfer-1.dmg
             archive_ext: dmg
             icon_path: packaging/app.icns
             jpackage_type: dmg
@@ -167,7 +166,14 @@ jobs:
             --dest target/dist \
             --name JetFileTransfer \
             --app-version "${{ github.run_number }}"
-          mv target/dist/JetFileTransfer-1.dmg "target/${{ matrix.asset_name }}.dmg"
+          shopt -s nullglob
+          DMG_FILES=(target/dist/*.dmg)
+          if [ ${#DMG_FILES[@]} -eq 0 ]; then
+            echo "No DMG file was created. Contents of target/dist:"
+            ls -la target/dist/
+            exit 1
+          fi
+          mv "${DMG_FILES[0]}" "target/${{ matrix.asset_name }}.dmg"
 
       - name: Create archive (Linux)
         if: matrix.archive_ext == 'tar.gz'
