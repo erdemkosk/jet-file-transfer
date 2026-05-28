@@ -153,7 +153,7 @@ public class TcpConnections implements ITcpIp {
     }
 
     public void sendFileToConnection() throws IOException {
-        new Thread() {
+        Thread senderThread = new Thread() {
             public void run() {
                 while (isRunning == true) {
                     try {
@@ -236,7 +236,9 @@ public class TcpConnections implements ITcpIp {
                     }
                 }
             }
-        }.start();
+        };
+        senderThread.setDaemon(true);
+        senderThread.start();
 
     }
 

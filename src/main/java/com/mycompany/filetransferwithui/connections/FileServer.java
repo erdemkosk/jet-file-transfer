@@ -45,6 +45,7 @@ public class FileServer extends TcpConnections implements Runnable {
 
         if (thread == null) {
             thread = new Thread(this, threadName);
+            thread.setDaemon(true);
             thread.start();
         }
     }
@@ -100,6 +101,23 @@ public class FileServer extends TcpConnections implements Runnable {
 
     public void setAcceptingConnections(boolean acceptingConnections) {
         this.acceptingConnections = acceptingConnections;
+    }
+
+    public void shutdown() {
+        stopRunning();
+        try {
+            releaseConnection();
+        } catch (IOException ex) {
+            Logger.getLogger(FileServer.class.getName()).log(Level.WARNING, "Failed to release server connection", ex);
+        }
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            try {
+                serverSocket.close();
+            } catch (IOException ex) {
+                Logger.getLogger(FileServer.class.getName()).log(Level.WARNING, "Failed to close server socket", ex);
+            }
+            serverSocket = null;
+        }
     }
 
 }

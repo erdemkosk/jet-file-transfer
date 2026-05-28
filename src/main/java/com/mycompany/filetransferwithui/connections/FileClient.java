@@ -52,6 +52,7 @@ public class FileClient extends TcpConnections implements Runnable {
 
         if (thread == null) {
             thread = new Thread(this, threadName);
+            thread.setDaemon(true);
             thread.start();
         }
 
@@ -82,6 +83,15 @@ public class FileClient extends TcpConnections implements Runnable {
     public void releaseConnection() throws IOException {
         isConnected = false;
         super.releaseConnection();
+    }
+
+    public void shutdown() {
+        stopRunning();
+        try {
+            releaseConnection();
+        } catch (IOException ex) {
+            Logger.getLogger(FileClient.class.getName()).log(Level.WARNING, "Failed to release client connection", ex);
+        }
     }
 
     public void setIsConnected(boolean isConnected) {

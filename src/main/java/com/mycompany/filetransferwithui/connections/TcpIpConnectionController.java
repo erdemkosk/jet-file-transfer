@@ -8,7 +8,10 @@ package com.mycompany.filetransferwithui.connections;
 import com.mycompany.filetransferwithui.MainFXMLController;
 import com.mycompany.filetransferwithui.controllers.ApplicationSettingsManager;
 import com.mycompany.filetransferwithui.controllers.FileServerController;
+import com.mycompany.filetransferwithui.controllers.OsCheck;
 import com.mycompany.filetransferwithui.enums.TcpIpType;
+import com.mycompany.filetransferwithui.helpers.Helpers;
+import com.mycompany.filetransferwithui.helpers.MacOSApplicationSupport;
 import com.mycompany.filetransferwithui.models.AppSettings;
 import java.io.IOException;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -87,6 +90,10 @@ public class TcpIpConnectionController {
             scene.setFill(javafx.scene.paint.Color.TRANSPARENT);
             stage.setScene(scene);
             stage.show();
+
+            if (Helpers.OperatingSystemHelper.detectOperatingSystem() == OsCheck.OSType.MacOS) {
+                MacOSApplicationSupport.applyDockIcon();
+            }
 
         } catch (IOException ex) {
             Logger.getLogger(TcpIpConnectionController.class.getName()).log(Level.SEVERE, null, ex);

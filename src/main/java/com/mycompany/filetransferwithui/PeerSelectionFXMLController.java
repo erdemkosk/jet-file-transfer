@@ -111,6 +111,14 @@ public class PeerSelectionFXMLController implements Initializable, IPeerDiscover
         peerController.start();
     }
 
+    public void requestApplicationExit() {
+        if (peerController != null) {
+            peerController.ExitRequested();
+        } else {
+            applicationExit();
+        }
+    }
+
     public void returnToPeerSelection() {
         if (stage == null || peerSelectionScene == null) {
             return;

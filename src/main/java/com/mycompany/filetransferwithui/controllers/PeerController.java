@@ -170,10 +170,12 @@ public class PeerController extends TcpIpConnectionController
         }
         if (fileServer != null) {
             fileServer.unHookObservers(this);
-            fileServer.stopRunning();
+            fileServer.shutdown();
         }
         if (fileClient != null) {
-            fileClient.stopRunning();
+            fileClient.unHookObservers(this);
+            fileClient.shutdown();
+            fileClient = null;
         }
         if (peerDiscovery != null) {
             peerDiscovery.removeObserver(peerListObserver);

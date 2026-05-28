@@ -2,11 +2,13 @@ package com.mycompany.filetransferwithui;
 
 import com.mycompany.filetransferwithui.controllers.OsCheck;
 import com.mycompany.filetransferwithui.helpers.Helpers;
+import com.mycompany.filetransferwithui.helpers.MacOSApplicationSupport;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
+import javafx.application.Platform;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -54,8 +56,7 @@ public class MainApp extends Application implements IControllerTemplate {
                 }
                 break;
             case MacOS:
-                // Do not override the dock icon on macOS. The .app bundle already ships app.icns;
-                // setDockIconImage() replaces it with the raw PNG and breaks visual consistency.
+                MacOSApplicationSupport.applyDockIcon();
                 break;
             case Linux:
                 break;
@@ -108,6 +109,16 @@ public class MainApp extends Application implements IControllerTemplate {
     @Override
     public void afterStart() {
         stage.show();
+        MacOSApplicationSupport.initialize(this::shutdownApplication);
+    }
+
+    private void shutdownApplication() {
+        if (controller != null) {
+            controller.requestApplicationExit();
+        } else {
+            Platform.exit();
+            System.exit(0);
+        }
     }
 
 }

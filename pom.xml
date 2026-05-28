@@ -134,6 +134,7 @@
 						<option>--add-opens=java.base/java.text=ALL-UNNAMED</option>
 						<option>--add-opens=java.desktop/java.awt.font=ALL-UNNAMED</option>
 						<option>--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED</option>
+						<option>--add-opens=java.desktop/java.awt.desktop=ALL-UNNAMED</option>
 					</options>
 				</configuration>
 			</plugin>

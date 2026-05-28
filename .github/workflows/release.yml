@@ -105,6 +105,7 @@ jobs:
             --java-options "--add-opens=java.base/java.text=ALL-UNNAMED"
             --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED"
             --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+            --java-options "--add-opens=java.desktop/java.awt.desktop=ALL-UNNAMED"
           )
           if [ "${{ matrix.javafx_platform }}" = "mac" ]; then
             arch -x86_64 jpackage "${JPACKAGE_ARGS[@]}"
@@ -132,7 +133,8 @@ jobs:
             --java-options "--add-opens=java.base/java.lang=ALL-UNNAMED" `
             --java-options "--add-opens=java.base/java.text=ALL-UNNAMED" `
             --java-options "--add-opens=java.desktop/java.awt.font=ALL-UNNAMED" `
-            --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED"
+            --java-options "--add-opens=java.desktop/com.apple.eawt=ALL-UNNAMED" `
+            --java-options "--add-opens=java.desktop/java.awt.desktop=ALL-UNNAMED"
 
       - name: Sign macOS app bundle
         if: runner.os == 'macOS'

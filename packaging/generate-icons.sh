@@ -2,10 +2,15 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-SRC="${ROOT_DIR}/src/main/resources/images/app.png"
+SRC="${ROOT_DIR}/packaging/app-icon-source.png"
+FALLBACK_SRC="${ROOT_DIR}/src/main/resources/images/app.png"
 OUT="${ROOT_DIR}/packaging"
 
 mkdir -p "${OUT}/icon.iconset"
+
+if [[ ! -f "${SRC}" ]]; then
+  SRC="${FALLBACK_SRC}"
+fi
 
 if [[ ! -f "${SRC}" ]]; then
   echo "Logo not found: ${SRC}" >&2
