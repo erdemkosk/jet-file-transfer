@@ -3,9 +3,6 @@ package com.mycompany.filetransferwithui;
 import com.mycompany.filetransferwithui.controllers.OsCheck;
 import com.mycompany.filetransferwithui.helpers.Helpers;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-
-import java.net.URL;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -16,10 +13,8 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javax.swing.ImageIcon;
 import com.mycompany.filetransferwithui.interfaces.IControllerTemplate;
 
 public class MainApp extends Application implements IControllerTemplate {
@@ -29,13 +24,6 @@ public class MainApp extends Application implements IControllerTemplate {
     private double yOffset = 0;
 
     private Stage stage;
-    URL iconURL;
-
-    @Override
-    public void init() throws Exception {
-        super.init(); //To change body of generated methods, choose Tools | Templates.
-
-    }
 
     @Override
     public void start(final Stage stage) throws Exception {
@@ -43,7 +31,6 @@ public class MainApp extends Application implements IControllerTemplate {
         beforeStart();
         doStart();
         afterStart();
- 
     }
 
     /**
@@ -62,30 +49,13 @@ public class MainApp extends Application implements IControllerTemplate {
         OsCheck.OSType ostype = Helpers.OperatingSystemHelper.detectOperatingSystem();
         switch (ostype) {
             case Windows:
-                //stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/images/app.png")));
-                if (stage == null) {
-
+                if (stage != null) {
+                    stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/images/app.png")));
                 }
-                stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/images/app.png")));
-                // stage.getIcons().add(windowImage);
                 break;
             case MacOS:
-                try {
-                    java.awt.Image applicationIconforMac;
-                    applicationIconforMac = new ImageIcon(iconURL).getImage();
-                    //com.apple.eawt.Application.getApplication().setDockIconImage(applicationIconforMac);
-                    String className = "com.apple.eawt.Application";
-                    Class<?> cls = Class.forName(className);
-
-                    // Replace: Application application = Application.getApplication();
-                    Object application = cls.getMethod("getApplication").invoke(null);
-
-                    // Replace: application.setDockIconImage(image);
-                    application.getClass().getMethod("setDockIconImage", java.awt.Image.class)
-                            .invoke(application, applicationIconforMac);
-                } catch (ClassNotFoundException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-                    e.printStackTrace();
-                }
+                // Do not override the dock icon on macOS. The .app bundle already ships app.icns;
+                // setDockIconImage() replaces it with the raw PNG and breaks visual consistency.
                 break;
             case Linux:
                 break;
@@ -96,7 +66,6 @@ public class MainApp extends Application implements IControllerTemplate {
 
     @Override
     public void beforeStart() {
-        iconURL = MainApp.class.getResource("/images/app.png");
         checkAndManageAppIcon();
     }
 
